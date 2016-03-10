@@ -71,7 +71,12 @@ void AOD::End() {
   SDL_DestroyWindow(AOD_Engine::screen);
   SDL_Quit();
 }
+
+std::mutex add_object_mutex;
+std::mutex add_text_mutex;
+
 void AOD::Add(AOD::Object* o,int layer) {
+  std::lock_guard<std::mutex> add_lock ( add_object_mutex );
   if ( realm != nullptr && o && layer >= 0 )
     realm->__Add(o, layer);
   else {
@@ -82,10 +87,8 @@ void AOD::Add(AOD::Object* o,int layer) {
     }
 }
 
-std::mutex add_mutex;
-
 void AOD::Add(Text* t) {
-  std::lock_guard<std::mutex> add_lock ( add_mutex );
+  std::lock_guard<std::mutex> add_lock ( add_text_mutex );
   if ( realm != nullptr && t != nullptr )
     realm->__Add(t);
   else {
